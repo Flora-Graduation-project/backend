@@ -1,4 +1,5 @@
-import { BAD_REQUEST } from "../Utils/errorCodes.js";
+import { BAD_REQUEST } from "../Utils/statusCodes.js";
+
 
 export const validate = (schema) => {
   return (req, res, next) => {

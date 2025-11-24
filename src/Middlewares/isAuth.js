@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken"
 import {catchError} from "../Utils/catchError.js"
 // import { User } from "../../../DB/Models/user.model.js";
-import { BAD_REQUEST , NOT_FOUND} from "../Utils/errorCodes.js";
+import { BAD_REQUEST , NOT_FOUND} from "../Utils/statusCodes.js";
 
 export const isAuthenticated = catchError(async(req,res,next) => {
     let {token} = req.headers;

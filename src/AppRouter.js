@@ -3,6 +3,7 @@ import helmet from "helmet";
 import { corsOptions } from "./Utils/corsOptions.js";
 import { globalErrorHandler } from "./Middlewares/globalErrorHandler.js";
 import { notFound } from "./Middlewares/notFound.js";
+import userRouter from "./Modules/Auth/auth.router.js"
 
 export const startApp = (app, express) => {
 
@@ -11,6 +12,9 @@ export const startApp = (app, express) => {
 
   // middleware to parse json
   app.use(express.json());
+
+  // User
+  app.use("/auth", userRouter);
 
   // errorhandeler route
   app.use(globalErrorHandler);
