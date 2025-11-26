@@ -28,19 +28,49 @@ export const signUp = catchError(async (req, res, next) => {
     name,
     email,
     password: hashPassword,
-    isConfirmed: true, 
+    isConfirmed: true,
   });
 
   // Generate token
-  const token = jwt.sign({ id: user._id }, process.env.TOKENKEY, {
-    expiresIn: "7d",
+  const token = jwt.sign({ id: user._id }, process.env.JWT_KEY, {
+    expiresIn: "7m",
   });
 
   // Response
   return res.status(201).json({
     success: true,
     message: "User registered successfully!",
-    user,
+    user:{ id: user._id, name: user.name, email: user.email },
+    token,
+  });
+});
+
+export const logIn = catchError(async (req, res, next) => {
+  const { email, password } = req.body;
+
+  // Find user by email
+  const user = await User.findOne({ email });
+  if (!user) {
+    return next(new Error("Email not found!"));
+  }
+  // Compare password
+  const isMatch = bcryptjs.compareSync(password, user.password);
+  if (!isMatch) {
+    return next(new Error("Incorrect password!"));
+  }
+  // Generate token
+  const token = jwt.sign(
+    { id: user._id, email: user.email },
+    process.env.JWT_KEY,
+    {
+      expiresIn: "20m",
+    }
+  );
+  // Response
+  return res.status(200).json({
+    success: true,
+    message: "Logged in successfully!",
+    user:{ id: user._id, name: user.name, email: user.email },
     token,
   });
 });
