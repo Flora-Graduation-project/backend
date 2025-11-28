@@ -14,11 +14,11 @@ router.post("/signUp", validate(signUpSchema), signUp);
 router.post("/logIn", validate(logInSchema), logIn);
 
 // تبدأ عملية تسجيل الدخول عبر Facebook
-router.get('/facebook', passport.authenticate('facebook', { scope: ['email'] }));
+router.get('/facebook', passport.authenticate('facebook', { session:false }));
 
 // بعد الرجوع من Facebook
 router.get('/facebook/callback',
-  passport.authenticate('facebook', { failureRedirect: '/logIn' }),
+  passport.authenticate('facebook', { session:false }),
   facebookLogin
 );
 
