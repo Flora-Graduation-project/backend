@@ -1,6 +1,7 @@
 // config/passport.js
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import { Strategy as FacebookStrategy } from 'passport-facebook';
 import {User} from "../DB/Models/User/user.model.js";
 import dotenv from "dotenv";
 
@@ -33,5 +34,18 @@ passport.use(
     }
   )
 );
+
+passport.use(new FacebookStrategy({
+    clientID: process.env.FB_APP_ID,
+    clientSecret: process.env.FB_APP_SECRET,
+    callbackURL: process.env.FB_CALLBACK_URL,
+    profileFields: ['id', 'displayName', 'emails']
+  },
+  function(accessToken, refreshToken, profile, done) {
+    console.log(profile);
+    return done(null, profile);
+  }
+));
+
 
 export default passport;

@@ -1,7 +1,6 @@
 import dotenv from "dotenv";
 import express from "express";
-import passport from './auth/facebookAuth.js'; 
-import session from 'express-session';
+import passport from './auth/passport.js'; 
 import { startApp } from "./src/AppRouter.js";
 import { connectDB } from "./DB/connection.js";
 
