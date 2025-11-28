@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 
-
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -13,9 +12,9 @@ const userSchema = new mongoose.Schema(
     },
 
     password: String,
+    googleId: String,
 
-    profilePic: {secure_url:String,public_id:String},
-   
+    profilePic: { secure_url: String, public_id: String },
 
     // isComfirmed: {
     //   type: Boolean,
@@ -26,7 +25,6 @@ const userSchema = new mongoose.Schema(
     //   type: Boolean,
     //   default: false,
     // },
-
   },
   {
     timestamps: true,
