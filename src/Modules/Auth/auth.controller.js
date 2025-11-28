@@ -109,3 +109,24 @@ export const facebookLogin = catchError(async (req, res, next) => {
     token,
   });
 });
+
+export const googleCallback = catchError(async (req, res, next) => {
+  const user = req.user;
+
+  // Generate JWT token
+  const token = jwt.sign({ id: user._id }, process.env.JWT_KEY, {
+    expiresIn: "7d",
+  });
+
+  // Return token and user info
+  res.json({
+    message: " Login successful",
+    token,
+    user: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      avatar: user.avatar,
+    },
+  });
+});

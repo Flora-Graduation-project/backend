@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { signUp , logIn} from "./auth.controller.js";
+import { signUp , logIn , googleCallback ,facebookLogin} from "./auth.controller.js";
 import { validate } from "../../Middlewares/validate.js";
 import { signUpSchema ,logInSchema} from "./auth.validation.js";
-import { facebookLogin } from "./auth.controller.js";
 import passport from '../../../auth/facebookAuth.js';
+import passportGoogle from '../../../auth/passport.js';
 
 const router = Router();
 
@@ -21,5 +21,20 @@ router.get('/facebook/callback',
   passport.authenticate('facebook', { failureRedirect: '/logIn' }),
   facebookLogin
 );
+
+//  المستخدم يضغط "Login with Google"
+router.get(
+  "/google",
+  passportGoogle.authenticate("google", { scope: ["profile", "email"] })
+);
+
+//  Google ترجعه بعد الموافقة
+
+router.get(
+  "/google/callback",
+  passportGoogle.authenticate("google", { session: false }),
+  googleCallback
+);
+
 
 export default router;
