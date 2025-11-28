@@ -40,7 +40,7 @@ export const signUp = catchError(async (req, res, next) => {
   return res.status(201).json({
     success: true,
     message: "User registered successfully!",
-    user:{ id: user._id, name: user.name, email: user.email },
+    user: { id: user._id, name: user.name, email: user.email },
     token,
   });
 });
@@ -70,7 +70,42 @@ export const logIn = catchError(async (req, res, next) => {
   return res.status(200).json({
     success: true,
     message: "Logged in successfully!",
-    user:{ id: user._id, name: user.name, email: user.email },
+    user: { id: user._id, name: user.name, email: user.email },
+    token,
+  });
+});
+
+export const facebookLogin = catchError(async (req, res, next) => {
+  if (!req.user) {
+    return next(
+      new Error("Facebook login failed : no user data returned from Facebook")
+    );
+  }
+
+  const { id: facebookId, displayName, emails } = req.user;
+  const email = emails ? emails[0].value : null;
+
+  let user = await User.findOne({ facebookId });
+  if (!user) {
+    user = await User.create({
+      facebookId,
+      name: displayName,
+      email,
+    });
+  }
+
+  const token = jwt.sign({ id: user._id }, process.env.JWT_KEY, {
+    expiresIn: "7d",
+  });
+
+  return res.status(200).json({
+    success: true,
+    message: "Successfully logged in via Facebook!",
+    user: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+    },
     token,
   });
 });
