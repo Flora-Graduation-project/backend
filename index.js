@@ -10,10 +10,7 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// إعداد الجلسات لـ Passport
-app.use(session({ secret: 'SECRET', resave: false, saveUninitialized: true }));
 app.use(passport.initialize());
-app.use(passport.session());
 
 connectDB();
 startApp(app, express);
