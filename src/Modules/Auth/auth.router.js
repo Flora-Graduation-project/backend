@@ -1,13 +1,19 @@
 import { Router } from "express";
-import { signUp , logIn , googleCallback ,facebookLogin} from "./auth.controller.js";
+import { signUp , logIn , googleCallback , facebookLogin , verify , resendCode} from "./auth.controller.js";
 import { validate } from "../../Middlewares/validate.js";
-import { signUpSchema ,logInSchema} from "./auth.validation.js";
+import { signUpSchema , logInSchema} from "./auth.validation.js";
 import passport from '../../../auth/passport.js';
 
 const router = Router();
 
 // sign up
 router.post("/signUp", validate(signUpSchema), signUp);
+
+// verify
+router.post("/verify", verify)
+
+// resend verification code
+router.post("/resend-code", resendCode);
 
 // log in
 router.post("/logIn", validate(logInSchema), logIn);
@@ -28,7 +34,6 @@ router.get(
 );
 
 //  Google ترجعه بعد الموافقة
-
 router.get(
   "/google/callback",
   passport.authenticate("google", { session: false }),

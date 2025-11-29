@@ -2,46 +2,43 @@ import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { User } from "../../../DB/Models/User/user.model.js";
 import { catchError } from "../../Utils/catchError.js";
+import { TempUser } from "../../../DB/Models/User/tempUser.model.js";
+import { sendCodeEmail } from "../../Utils/sendCode.js";
+
 
 export const signUp = catchError(async (req, res, next) => {
   const { name, email, password, confirmPassword } = req.body;
 
-  // Check password match
-  if (password !== confirmPassword) {
+  if (password !== confirmPassword)
     return next(new Error("Passwords do not match!"));
-  }
 
-  // Check if user exists
   const isUser = await User.findOne({ email });
-  if (isUser) {
-    return next(new Error("Email must be unique!"));
-  }
+  if (isUser) return next(new Error("Email must be unique!"));
 
-  // Hash password
-  const hashPassword = bcryptjs.hashSync(
-    password,
-    Number(process.env.SALTROUNDS)
-  );
+  const hashPassword = bcryptjs.hashSync(password, Number(process.env.SALTROUNDS));
 
-  // Create user
-  const user = await User.create({
+  await TempUser.deleteOne({ email });
+
+  const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+  await TempUser.create({
     name,
     email,
     password: hashPassword,
-    isConfirmed: true,
+    verificationCode,
+    expiresAt: new Date(Date.now() + 5 * 60 * 1000),
   });
 
-  // Generate token
-  const token = jwt.sign({ id: user._id }, process.env.JWT_KEY, {
-    expiresIn: "7m",
+  await sendCodeEmail({
+    toEmail: email,
+    code: verificationCode,
+    subject: "Verify your Flora account",
+    messageBody: "Thank you for signing up on Flora App! Enter this code to verify your account",
   });
 
-  // Response
-  return res.status(201).json({
+  return res.status(200).json({
     success: true,
-    message: "User registered successfully!",
-    user: { id: user._id, name: user.name, email: user.email },
-    token,
+    message: "A verification code has been sent to your email, Please verify to complete registration!",
   });
 });
 
@@ -130,3 +127,59 @@ export const googleCallback = catchError(async (req, res, next) => {
     },
   });
 });
+
+export const verify = catchError(async (req, res, next) => {
+  const { email, code } = req.body;
+
+  const tempUser = await TempUser.findOne({ email });
+  if (!tempUser) return next(new Error("User not found or code expired!"));
+
+  if (tempUser.verificationCode !== code)
+    return next(new Error("Incorrect verification code!"));
+
+  if (tempUser.expiresAt < new Date()) {
+    await TempUser.deleteOne({ email });
+    return next(new Error("Verification code has expired!"));
+  }
+
+  const user = await User.create({
+    name: tempUser.name,
+    email: tempUser.email,
+    password: tempUser.password,
+  });
+
+  await TempUser.deleteOne({ email });
+
+  const token = jwt.sign({ id: user._id }, process.env.JWT_KEY, { expiresIn: "7d" });
+
+  return res.status(200).json({
+    success: true,
+    message: "Account created successfully!",
+    user: { id: user._id, name: user.name, email: user.email },
+    token,
+  });
+});
+
+export const resendCode = async (req, res, next) => {
+  const { email } = req.body;
+
+  const tempUser = await TempUser.findOne({ email });
+  if (!tempUser) return res.status(400).json({ success: false, message: "Please sign up first!" });
+
+  // new code 
+  const newCode = Math.floor(100000 + Math.random() * 900000).toString();
+  tempUser.code = newCode;
+  tempUser.expireAt = Date.now() + 5 * 60 * 1000; 
+  await tempUser.save();
+
+ 
+  await sendCodeEmail({
+    toEmail: email,
+    code: newCode,
+    subject: "Your verification code",
+    messageBody: "Here is your new verification code :",
+  });
+
+  res.status(200).json({ success: true, message: "Verification code resent!" });
+};
+
