@@ -31,6 +31,4 @@ export const sendCodeEmail = async ({
     subject,
     html: htmlMessage,
   });
-
-  console.log("Code email sent to :", toEmail);
 };
