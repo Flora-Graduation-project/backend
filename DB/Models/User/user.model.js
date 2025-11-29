@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema(
 
     password: String,
     googleId: String,
+    facebookId: String,
 
     profilePic: { secure_url: String, public_id: String },
 

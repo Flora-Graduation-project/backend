@@ -13,8 +13,6 @@ const tempUserSchema = new mongoose.Schema(
 
     password: String,
 
-    profilePic: { secure_url: String, public_id: String },
-
     // verification
     verificationCode: {
       type: String,
@@ -25,6 +23,11 @@ const tempUserSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
+    purpose: {
+      type: String,
+      enum: ["verifyAccount", "resetPassword"],
+      required: true,
+    },
   },
   {
     timestamps: true,
@@ -32,4 +35,3 @@ const tempUserSchema = new mongoose.Schema(
 );
 
 export const TempUser = mongoose.model("TempUser", tempUserSchema);
-
