@@ -87,6 +87,10 @@ export const logIn = catchError(async (req, res, next) => {
     }
   );
   if (user.isDeleted) {
+    await User.findByIdAndUpdate(user._id, {
+      isDeleted: false,
+      deletedAt: null,
+    });
     return res.status(200).json({
       success: true,
       message:
@@ -128,6 +132,10 @@ export const facebookLogin = catchError(async (req, res, next) => {
   });
 
   if (user.isDeleted) {
+    await User.findByIdAndUpdate(user._id, {
+      isDeleted: false,
+      deletedAt: null,
+    });
     return res.status(200).json({
       success: true,
       message:
@@ -156,6 +164,7 @@ export const googleCallback = catchError(async (req, res, next) => {
     expiresIn: "7d",
   });
   if (user.isDeleted) {
+    await User.findByIdAndUpdate(user._id, { isDeleted: false, deletedAt: null });
     return res.status(200).json({
       success: true,
       message:

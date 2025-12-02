@@ -1,7 +1,8 @@
 import { Router } from "express";
-import { updateProfile , deleteUser} from "./user.controller.js";
+import { updateProfile , deleteUser , getUserProfile} from "./user.controller.js";
 import { isAuthenticated } from "../../Middlewares/isAuth.js";
 import { uploadCloud } from "../../Utils/multerCloud.js";
+import { get } from "mongoose";
 
 const router = Router();
 
@@ -14,5 +15,6 @@ router.patch(
 );
 // delete user account
 router.delete("/delete", isAuthenticated, deleteUser);
+router.get("/myprofile", isAuthenticated, getUserProfile);
 
 export default router;
