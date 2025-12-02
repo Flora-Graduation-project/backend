@@ -13,6 +13,7 @@ export const isAuthenticated = catchError(async (req, res, next) => {
   }
   token = token.split(" ")[1];
   const payload = jwt.verify(token, process.env.JWT_KEY);
+  console.log("JWT Payload:", payload);
   const user = await User.findById(payload.id);
   if (!user) {
     return next(new Error("user not found !", { cause: NOT_FOUND }));
