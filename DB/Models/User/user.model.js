@@ -14,6 +14,11 @@ const userSchema = new mongoose.Schema(
     password: String,
     googleId: String,
     facebookId: String,
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+    deletedAt: Date,
 
     profilePic: { secure_url: String, public_id: String },
 
