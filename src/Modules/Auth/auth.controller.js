@@ -4,16 +4,27 @@ import { User } from "../../../DB/Models/User/user.model.js";
 import { catchError } from "../../Utils/catchError.js";
 import { TempUser } from "../../../DB/Models/User/tempUser.model.js";
 import { sendCodeEmail } from "../../Utils/sendCode.js";
-import cloudinary from "../../Utils/cloud.js";
 
 export const signUp = catchError(async (req, res, next) => {
   const { name, email, password, confirmPassword } = req.body;
 
+  const isUser = await User.findOne({ email });
+  if (isUser&& !isUser.isDeleted) {
+return next(new Error("Email must be unique!"));
+  } 
+  
+  else if (isUser && isUser.isDeleted) {
+    await User.findByIdAndUpdate(isUser._id, {
+      isDeleted: false,
+      deletedAt: null,
+    });
+    return res.status(200).json({
+      success: true,
+      message: "Your account has been restored. You can now log in.", /////////////////////// عرفي سلمي انه يروح يعمل لوج
+    });
+  }
   if (password !== confirmPassword)
     return next(new Error("Passwords do not match!"));
-
-  const isUser = await User.findOne({ email });
-  if (isUser) return next(new Error("Email must be unique!"));
 
   const hashPassword = bcryptjs.hashSync(
     password,
@@ -75,6 +86,15 @@ export const logIn = catchError(async (req, res, next) => {
       expiresIn: "20m",
     }
   );
+  if (user.isDeleted) {
+    return res.status(200).json({
+      success: true,
+      message:
+        "Your account was scheduled for deletion but has now been restored.",
+      user: { id: user._id, name: user.name, email: user.email },
+      token,
+    });
+  }
   // Response
   return res.status(200).json({
     success: true,
@@ -102,11 +122,20 @@ export const facebookLogin = catchError(async (req, res, next) => {
       email,
     });
   }
-
+  // Generate JWT token
   const token = jwt.sign({ id: user._id }, process.env.JWT_KEY, {
     expiresIn: "7d",
   });
 
+  if (user.isDeleted) {
+    return res.status(200).json({
+      success: true,
+      message:
+        "Your account was scheduled for deletion but has now been restored.",
+      user: { id: user._id, name: user.name, email: user.email },
+      token,
+    });
+  }
   return res.status(200).json({
     success: true,
     message: "Successfully logged in via Facebook!",
@@ -126,7 +155,15 @@ export const googleCallback = catchError(async (req, res, next) => {
   const token = jwt.sign({ id: user._id }, process.env.JWT_KEY, {
     expiresIn: "7d",
   });
-
+  if (user.isDeleted) {
+    return res.status(200).json({
+      success: true,
+      message:
+        "Your account was scheduled for deletion but has now been restored.",
+      user: { id: user._id, name: user.name, email: user.email },
+      token,
+    });
+  }
   // Return token and user info
   res.json({
     message: " Login successful",
@@ -135,7 +172,6 @@ export const googleCallback = catchError(async (req, res, next) => {
       id: user._id,
       name: user.name,
       email: user.email,
-      avatar: user.avatar,
     },
   });
 });
@@ -223,10 +259,11 @@ export const forgetPassword = catchError(async (req, res, next) => {
   const { email } = req.body;
 
   // Find user by email
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email});
   if (!user) {
     return next(new Error("Email not found!"));
   }
+
   // send code
 
   const verificationCode = Math.floor(
@@ -289,49 +326,5 @@ export const resetPassword = catchError(async (req, res, next) => {
   return res.status(200).json({
     success: true,
     message: "Password reset successfully!",
-  });
-});
-
-export const updateProfile = catchError(async (req, res, next) => {
-  const userId = req.user.id;
-  const { name } = req.body;
-
-  let profilePic = req.user.profilePic || {};
-
-  if (req.file) {
-    const uploadResult = await new Promise((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
-        { folder: "flora_app/users/profile_pictures" },
-        (error, result) => {
-          if (error) return reject(error);
-          resolve(result);
-        }
-      );
-      stream.end(req.file.buffer);
-    });
-
-    profilePic = {
-      secure_url: uploadResult.secure_url,
-      public_id: uploadResult.public_id,
-    };
-
-    console.log("Uploaded Image URL:", profilePic.secure_url);
-  }
-
-  const updatedUser = await User.findByIdAndUpdate(
-    userId,
-    {
-      name: name || req.user.name,
-      profilePic,
-    },
-    { new: true }
-  );
-
-  console.log("Updated User:", updatedUser);
-
-  return res.status(200).json({
-    success: true,
-    message: "Profile Updated Successfully!",
-    user: updatedUser,
   });
 });
