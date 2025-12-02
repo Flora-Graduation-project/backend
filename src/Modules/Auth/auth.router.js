@@ -8,6 +8,7 @@ import {
   resendCode,
   forgetPassword,
   resetPassword,
+  updateProfile
 } from "./auth.controller.js";
 import { validate } from "../../Middlewares/validate.js";
 import {
@@ -17,6 +18,7 @@ import {
 } from "./auth.validation.js";
 import passport from "../../../auth/passport.js";
 import { isAuthenticated } from "../../Middlewares/isAuth.js";
+import { uploadCloud } from "../../Utils/multerCloud.js";
 
 const router = Router();
 
@@ -30,7 +32,6 @@ router.post("/verify", verify);
 router.post("/resend-code", resendCode);
 
 //forget password
-
 router.post("/forgetPassword", forgetPassword);
 
 // reset password
@@ -68,6 +69,14 @@ router.get(
   "/google/callback",
   passport.authenticate("google", { session: false }),
   googleCallback
+);
+
+// edit personal data
+router.patch(
+  "/edit",
+  isAuthenticated,
+  uploadCloud().single("image"),
+  updateProfile
 );
 
 export default router;
