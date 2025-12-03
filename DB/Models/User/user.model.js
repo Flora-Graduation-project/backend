@@ -20,7 +20,19 @@ const userSchema = new mongoose.Schema(
     },
     deletedAt: Date,
 
-    profilePic: { secure_url: String, public_id: String },
+     profilePic: {
+  type: {
+    secure_url: { 
+      type: String, 
+      default: "https://res.cloudinary.com/dy1tcyhjp/image/upload/v1764761436/Grey-Head-Pic_f2jggx.webp" 
+    },
+    public_id: { 
+      type: String, 
+      default: "Grey-Head-Pic_f2jggx" 
+    }
+  },
+  default: {}
+}
 
     // isComfirmed: {
     //   type: Boolean,
