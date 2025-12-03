@@ -4,7 +4,7 @@ import cloudinary from "../../Utils/cloud.js";
 
 export const updateProfile = catchError(async (req, res, next) => {
   const userId = req.user.id;
-  const { name } = req.body;
+  const name = req.body?.name;
 
   let profilePic = req.user.profilePic || {};
 
@@ -58,7 +58,7 @@ export const deleteUser = catchError(async (req, res, next) => {
   });
   return res.status(200).json({
     success: true,
-    message: "User account deleted successfully",
+    message: "User account deleted successfully.you can restore it within the next 30 days",
   });
 });
 
@@ -71,6 +71,10 @@ export const getUserProfile = catchError(async (req, res, next) => {
   return res.status(200).json({
     success: true,
     message: "User profile fetched successfully",
-    user:{ name: user[0].name, email: user[0].email, profilePic: user[0].profilePic },
+    user: {
+      name: user[0].name,
+      email: user[0].email,
+      profilePic: user[0].profilePic,
+    },
   });
 });

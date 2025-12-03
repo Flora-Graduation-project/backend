@@ -2,7 +2,8 @@ import { Router } from "express";
 import { updateProfile , deleteUser , getUserProfile} from "./user.controller.js";
 import { isAuthenticated } from "../../Middlewares/isAuth.js";
 import { uploadCloud } from "../../Utils/multerCloud.js";
-import { get } from "mongoose";
+import { editUserSchema } from "./user.validation.js";
+import { validate } from "../../Middlewares/validate.js";
 
 const router = Router();
 
@@ -10,6 +11,7 @@ const router = Router();
 router.patch(
   "/edit",
   isAuthenticated,
+  validate(editUserSchema),
   uploadCloud().single("image"),
   updateProfile
 );
