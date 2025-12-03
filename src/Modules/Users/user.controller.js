@@ -5,8 +5,11 @@ import cloudinary from "../../Utils/cloud.js";
 export const updateProfile = catchError(async (req, res, next) => {
   const userId = req.user.id;
   const name = req.body?.name;
-
-  let profilePic = req.user.profilePic || {};
+  const user = await User.findById(userId);
+  if (!user || user.isDeleted) {
+    return next(new Error("User not found or has been deleted"));
+  }
+  let profilePic = req.user.profilePic || user.profilePic;
 
   if (req.file) {
     const uploadResult = await new Promise((resolve, reject) => {
@@ -58,7 +61,8 @@ export const deleteUser = catchError(async (req, res, next) => {
   });
   return res.status(200).json({
     success: true,
-    message: "User account deleted successfully.you can restore it within the next 30 days",
+    message:
+      "User account deleted successfully.you can restore it within the next 30 days",
   });
 });
 
