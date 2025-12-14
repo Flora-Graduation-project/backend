@@ -4,13 +4,16 @@ import { User } from "../../../DB/Models/User/user.model.js";
 import { catchError } from "../../Utils/catchError.js";
 import { TempUser } from "../../../DB/Models/User/tempUser.model.js";
 import { sendCodeEmail } from "../../Utils/sendCode.js";
+import { BAD_REQUEST } from "../../Utils/statusCodes.js";
 
 export const signUp = catchError(async (req, res, next) => {
   const { name, email, password, confirmPassword } = req.body;
 
   const isUser = await User.findOne({ email });
   if (isUser&& !isUser.isDeleted) {
-return next(new Error("Email must be unique!"));
+const err = new Error("Email must be unique!");
+  err.statusCode  = BAD_REQUEST; 
+  return next(err);
   } 
   
   else if (isUser && isUser.isDeleted) {
@@ -23,9 +26,11 @@ return next(new Error("Email must be unique!"));
       message: "Your account has been restored. You can now log in.", /////////////////////// عرفي سلمي انه يروح يعمل لوج
     });
   }
-  if (password !== confirmPassword)
-    return next(new Error("Passwords do not match!"));
-
+  if (password !== confirmPassword){
+    const err = new Error("Passwords do not match!");
+  err.statusCode  = BAD_REQUEST; 
+  return next(err);
+  }
   const hashPassword = bcryptjs.hashSync(
     password,
     Number(process.env.SALTROUNDS)
@@ -71,12 +76,16 @@ export const logIn = catchError(async (req, res, next) => {
   // Find user by email
   const user = await User.findOne({ email });
   if (!user) {
-    return next(new Error("Email not found!"));
+     const err = new Error("Email not found!!");
+  err.statusCode  = BAD_REQUEST; 
+  return next(err);
   }
   // Compare password
   const isMatch = bcryptjs.compareSync(password, user.password);
   if (!isMatch) {
-    return next(new Error("Incorrect password!"));
+    const err = new Error("Incorrect password!");
+  err.statusCode  = BAD_REQUEST;
+    return next(err);
   }
   // Generate token
   const token = jwt.sign(
@@ -189,19 +198,27 @@ export const verify = catchError(async (req, res, next) => {
   const { email, code } = req.body;
 
   const tempUser = await TempUser.findOne({ email });
-  if (!tempUser) return next(new Error("User not found or code expired!"));
+  if (!tempUser) {
+    const err = new Error("User not found or code expired!"); 
+  err.statusCode  = BAD_REQUEST; 
+  return next(err);
+  }
 
   const isCode = await bcryptjs.compare(
     code.toString(),
     tempUser.verificationCode
   );
   if (!isCode) {
-    return next(new Error("Incorrect verification code!"));
+    const err = new Error("Invalid verification code!");
+  err.statusCode  = BAD_REQUEST; 
+  return next(err);
   }
 
   if (tempUser.expiresAt < new Date()) {
     await TempUser.deleteOne({ email });
-    return next(new Error("Verification code has expired!"));
+  const err = new Error("Verification code has expired!");
+  err.statusCode  = BAD_REQUEST; 
+  return next(err);
   }
 
   if (tempUser.purpose === "verifyAccount") {
@@ -270,7 +287,9 @@ export const forgetPassword = catchError(async (req, res, next) => {
   // Find user by email
   const user = await User.findOne({ email});
   if (!user) {
-    return next(new Error("Email not found!"));
+   const err = new Error("Email not found!");
+  err.statusCode  = BAD_REQUEST; 
+  return next(err);
   }
 
   // send code
@@ -312,15 +331,19 @@ export const resetPassword = catchError(async (req, res, next) => {
   const id = req.user.id;
   const user = await User.findById(id);
   if (!user) {
-    return next(new Error("User not found!"));
+    const err = new Error("User not found!");
+  err.statusCode  = BAD_REQUEST; 
+  return next(err);
   } else if (newPassword !== confirmPassword) {
-    return next(new Error("Passwords do not match!"));
+    const err = new Error("Passwords do not match!");
+  err.statusCode  = BAD_REQUEST; 
+  return next(err);
   }
   // Compare new password with old one (hashed)
   const isSamePassword = await bcryptjs.compare(newPassword, user.password);
 
   if (isSamePassword) {
-    return res.json({
+    return res.status(400).json({
       success: false,
       message: "New password cannot be the same as the old password",
     });

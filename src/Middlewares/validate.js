@@ -7,7 +7,9 @@ export const validate = (schema) => {
     const result = schema.validate(copyreqData, { abortEarly: false });
     if (result.error) {
         const errorArray = result.error.details.map((detail) => detail.message);
-     return next(new Error(errorArray,{cause:BAD_REQUEST}) );
+     const err = new Error(errorArray.join(", "));
+      err.statusCode  = BAD_REQUEST; 
+      return next(err);
     }
     return next();
   };

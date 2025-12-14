@@ -1,13 +1,16 @@
 import { User } from "../../../DB/Models/User/user.model.js";
 import { catchError } from "../../Utils/catchError.js";
 import cloudinary from "../../Utils/cloud.js";
+import { NOT_FOUND } from "../../Utils/statusCodes.js";
 
 export const updateProfile = catchError(async (req, res, next) => {
   const userId = req.user.id;
   const name = req.body?.name;
   const user = await User.findById(userId);
   if (!user || user.isDeleted) {
-    return next(new Error("User not found or has been deleted"));
+    const err = new Error("User not found or has been deleted");
+  err.statusCode  = NOT_FOUND ; 
+  return next(err);
   }
   let profilePic = req.user.profilePic || user.profilePic;
 
@@ -53,7 +56,9 @@ export const deleteUser = catchError(async (req, res, next) => {
   const userId = req.user.id;
   const user = await User.find({ _id: userId, isDeleted: false });
   if (!user) {
-    return next(new Error("User not found or already deleted"));
+    const err = new Error("User not found or already deleted");
+  err.statusCode  = NOT_FOUND ; 
+  return next(err);
   }
   await User.findByIdAndUpdate(userId, {
     isDeleted: true,
@@ -70,7 +75,9 @@ export const getUserProfile = catchError(async (req, res, next) => {
   const userId = req.user.id;
   const user = await User.find({ _id: userId, isDeleted: false });
   if (!user) {
-    return next(new Error("User not found "));
+    const err = new Error("User not found or has been deleted");
+  err.statusCode  = NOT_FOUND ; 
+  return next(err);
   }
   return res.status(200).json({
     success: true,
