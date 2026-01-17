@@ -13,8 +13,8 @@ export const signUpSchema = joi
       "string.email": "Email must be a valid email",
       "string.empty": "Email is required",
     }),
-    password: joi.string().min(6).required().messages({
-      "string.min": "Password must be at least 6 characters",
+    password: joi.string().min(10).required().messages({
+      "string.min": "Password must be at least 10 characters",
       "any.required": "Password is required",
     }),
     confirmPassword: joi
