@@ -13,3 +13,21 @@ if(users.length > 0){
   }
 }
 })});
+
+export const deleteSoftDeletedMarketItems = () => {
+  cron.schedule("0 0 * * *", async () => {
+    const today = new Date();
+
+    const items = await MarketItem.find({
+      isDeleted: true,
+      deletedAt: {
+        $lte: new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000),
+      },
+    });
+
+    for (const item of items) {
+      await MarketItem.findByIdAndDelete(item._id);
+      console.log(`Permanently deleted plant: ${item._id}`);
+    }
+  });
+};

@@ -5,6 +5,9 @@ import { globalErrorHandler } from "./Middlewares/globalErrorHandler.js";
 import { notFound } from "./Middlewares/notFound.js";
 import authRouter from "./Modules/Auth/auth.router.js"
 import userRouter from "./Modules/Users/users.router.js"
+import marketItemRouter from "./Modules/marketItem/marketItem.router.js";
+
+
 
 export const startApp = (app, express) => {
 
@@ -17,6 +20,9 @@ export const startApp = (app, express) => {
   // User
   app.use("/auth", authRouter);
   app.use("/users", userRouter);
+
+  // Market Items
+  app.use("/market", marketItemRouter);
 
   // errorhandeler route
   app.use(globalErrorHandler);

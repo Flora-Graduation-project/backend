@@ -3,7 +3,7 @@ import express from "express";
 import passport from './auth/passport.js'; 
 import { startApp } from "./src/AppRouter.js";
 import { connectDB } from "./DB/connection.js";
-import { deleteSoftDeletedUsers } from "./src/Utils/cron-job.js";
+import { deleteSoftDeletedUsers , deleteSoftDeletedMarketItems } from "./src/Utils/cron-job.js";
 dotenv.config();
 
 const app = express();
@@ -14,6 +14,7 @@ app.use(passport.initialize());
 
 connectDB();
 deleteSoftDeletedUsers();
+deleteSoftDeletedMarketItems();
 startApp(app, express);
 
 app.listen(PORT, () => {
