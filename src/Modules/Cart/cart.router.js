@@ -3,11 +3,13 @@ import {
   addToCart,
   getCart,
   removeCartItem,
-  clearCart,
   updateCartItem,
 } from "./cart.controller.js";
-import { AddToCartSchema } from "./cart.validation.js";
-import { updateCartItemSchema } from "./cart.validation.js";
+import {
+  AddToCartSchema,
+  updateCartItemSchema,
+  removeItemSchema,
+} from "./cart.validation.js";
 import { isAuthenticated } from "../../Middlewares/isAuth.js";
 import { validate } from "../../Middlewares/validate.js";
 
@@ -20,6 +22,19 @@ router.post("/add", isAuthenticated, validate(AddToCartSchema), addToCart);
 router.get("/", isAuthenticated, getCart);
 
 // Update cart item
-router.patch("/update", isAuthenticated, validate(updateCartItemSchema), updateCartItem);
+router.patch(
+  "/update",
+  isAuthenticated,
+  validate(updateCartItemSchema),
+  updateCartItem,
+);
+
+// Remove item from cart
+router.delete(
+  "/remove",
+  isAuthenticated,
+  validate(removeItemSchema),
+  removeCartItem,
+);
 
 export default router;
