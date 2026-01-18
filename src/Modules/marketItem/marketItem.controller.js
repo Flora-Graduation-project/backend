@@ -18,9 +18,15 @@ export const addMarketItem = catchError( async (req, res, next) => {
 
 // get all market plants
 export const getAllMarketItems = catchError(async (req, res, next) => {
+  // pagination
+  const page = req.query.page || 1;
+  const limit = 14;
+  const skip = (page - 1) * limit;
   const items = await MarketItem.find({ isDeleted: false })
-    .select("name image price");
-
+    .select("name image price")
+    .skip(skip)
+    .limit(limit);
+    
   res.status(SUCCESS).json({
     results: items.length,
     data: items,
