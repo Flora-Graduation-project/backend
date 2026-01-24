@@ -6,8 +6,7 @@ import { notFound } from "./Middlewares/notFound.js";
 import authRouter from "./Modules/Auth/auth.router.js"
 import userRouter from "./Modules/Users/users.router.js"
 import marketItemRouter from "./Modules/marketItem/marketItem.router.js";
-
-
+import wishlistRouter from "./Modules/wishList/wishList.route.js"
 import cartRouter from "./Modules/Cart/cart.router.js"
 
 export const startApp = (app, express) => {
@@ -25,6 +24,9 @@ export const startApp = (app, express) => {
 
   // Market Items
   app.use("/market", marketItemRouter);
+
+  // wishList
+app.use("/wishlist",wishlistRouter)
 
   // errorhandeler route
   app.use(globalErrorHandler);
