@@ -22,8 +22,12 @@ export const getAllMarketItems = catchError(async (req, res, next) => {
   const page = req.query.page || 1;
   const limit = 14;
   const skip = (page - 1) * limit;
-  const items = await MarketItem.find({ isDeleted: false })
-    .select("name image price")
+
+  const items = await MarketItem.find({ 
+      isDeleted: false, 
+      quantity: { $gt: 0 } 
+    })
+    .select("name image price quantity") 
     .skip(skip)
     .limit(limit);
     
