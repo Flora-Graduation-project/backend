@@ -76,3 +76,24 @@ export const removeFromWishList = catchError(async (req, res, next) => {
     wishList
   });
 });
+
+export const moveToCartFromWishList = catchError(async (req, res, next) => {
+  const userId = req.user.id;
+  const itemId = req.body.itemId;
+  const wishList = await wishListModel.findOne({user:userId});
+  if(!wishList ){
+    const err = new Error(" Wishlist Is Empty");
+    err.statusCode = NOT_FOUND;
+    return next(err);
+  }
+  const itemIndex = wishList.items.indexOf(itemId);
+  if(itemIndex == -1){
+    const err = new Error("Item not found in wishlist");
+    err.statusCode = NOT_FOUND;
+    return next(err);
+  }
+  wishList.items.splice(itemIndex, 1);
+  await wishList.save();
+  req.body.itemId = itemId; // set itemId in req.body for cart controller
+  next(); // proceed to the next middleware (cart controller) 
+});

@@ -17,7 +17,7 @@ export const confirmOrder = catchError(async (req, res) => {
   const orderItems = [];
 
   for (const item of items) {
-    const plant = await MarketItem.findById(item.plant);
+    const plant = await MarketItem.find({_id:item.plant, isDeleted:false});
     if (!plant) {
       return res.status(NOT_FOUND).json({ message: "Plant not found!" });
     }
