@@ -87,12 +87,17 @@ export const getMyOrders = catchError(async (req, res) => {
  
 export const getOrderDetails = catchError(async (req, res) => {
   const { id } = req.params;
+  const userId = req.user.id;
 
   const order = await Order.findById(id)
     .select("orderNumber createdAt paymentMethod subTotal deliveryFee totalPrice address items")
     .populate("buyer", "name phone");
 
   if (!order) return res.status(NOT_FOUND).json({ message: "Order not found!" });
+
+  if(order.buyer._id.toString() !== userId){
+    return res.status(NOT_FOUND).json({ message: "Order not found!" });
+  }
 
   const totalItemsCount = order.items.reduce((acc, item) => acc + item.quantity, 0);
 
