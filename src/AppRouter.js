@@ -9,6 +9,8 @@ import marketItemRouter from "./Modules/marketItem/marketItem.router.js";
 import wishlistRouter from "./Modules/wishList/wishList.route.js"
 import cartRouter from "./Modules/Cart/cart.router.js"
 import orderRouter from "./Modules/Order/order.router.js";
+import plantRouter from "./Modules/Encyclopedia/Plant.router.js";
+import diseaseRouter from "./Modules/Encyclopedia/Diseases.router.js";
 
 export const startApp = (app, express) => {
 
@@ -31,6 +33,10 @@ export const startApp = (app, express) => {
 
   // Orders
   app.use("/orders", orderRouter);
+
+  // Encyclopedia
+  app.use("/plants", plantRouter);
+  app.use("/diseases", diseaseRouter);
 
   // errorhandeler route
   app.use(globalErrorHandler);
