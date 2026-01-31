@@ -4,42 +4,102 @@ import { catchError } from "../../Utils/catchError.js";
 import { CREATED, NOT_FOUND, SUCCESS ,BAD_REQUEST } from "../../Utils/statusCodes.js";
 import Cart from "../../../DB/Models/Cart/Cart.model.js";
 
-export const confirmOrder = catchError(async (req, res) => {
-  const { items, address, paymentMethod } = req.body;
+// export const confirmOrder = catchError(async (req, res) => {
+//   const { items, address, paymentMethod } = req.body;
 
-  const shippingRates = {
-    "Cairo": 50, "Giza": 50, "Sharkia": 80, "Alexandria": 100
-  };
+//   const shippingRates = {
+//     "Cairo": 50, "Giza": 50, "Sharkia": 80, "Alexandria": 100
+//   };
+//   const deliveryFee = shippingRates[address.governorate] || 100;
+
+//   let subTotal = 0;
+//   let sellerId = null;
+//   const orderItems = [];
+
+//   for (const item of items) {
+//     const plant = await MarketItem.find({_id:item.plant, isDeleted:false});
+//     if (!plant) {
+//       return res.status(NOT_FOUND).json({ message: "Plant not found!" });
+//     }
+
+//     if (plant.quantity < item.quantity) {
+//       return res.status(BAD_REQUEST).json({ 
+//         message: `Sorry, only ${plant.quantity} items left of ${plant.name}` 
+//       });
+//     }
+
+//     subTotal += plant.price * item.quantity;
+//     sellerId = plant.seller;
+
+//     orderItems.push({
+//       plant: plant._id,
+//       quantity: item.quantity,
+//       price: plant.price,
+//     });
+//   }
+
+//   const totalPrice = subTotal + deliveryFee;
+//   const orderNumber = Math.floor(100000 + Math.random() * 900000).toString();
+
+//   const order = await Order.create({
+//     buyer: req.user.id,
+//     seller: sellerId,
+//     items: orderItems,
+//     address,
+//     paymentMethod,
+//     subTotal,
+//     deliveryFee,
+//     totalPrice,
+//     orderNumber
+//   });
+
+//   for (const item of items) {
+//     await MarketItem.findByIdAndUpdate(item.plant, {
+//       $inc: { quantity: -item.quantity }
+//     });
+//   }
+
+//   await Cart.findOneAndDelete({ buyer: req.user.id });
+
+//   const populatedOrder = await Order.findById(order._id)
+//     .populate("seller", "name") 
+//     .populate("items.plant", "name");
+
+//   res.status(CREATED).json({
+//     message: "Order confirmed successfully and cart cleared!",
+//     data: populatedOrder,
+//   });
+// });
+
+export const confirmOrder = catchError(async (req, res) => {
+  const cart = await Cart.findOne({ buyer: req.user.id }).populate("items.plant");
+
+  if (!cart || cart.items.length === 0) {
+    return res.status(400).json({ message: "Cart is empty!" });
+  }
+
+  const { address, paymentMethod } = req.body;
+  const shippingRates = { "Cairo": 50, "Giza": 50, "Sharkia": 80, "Alexandria": 100 };
   const deliveryFee = shippingRates[address.governorate] || 100;
 
   let subTotal = 0;
   let sellerId = null;
   const orderItems = [];
 
-  for (const item of items) {
-    const plant = await MarketItem.find({_id:item.plant, isDeleted:false});
-    if (!plant) {
-      return res.status(NOT_FOUND).json({ message: "Plant not found!" });
-    }
+  for (const item of cart.items) {
+    if (!item.plant) continue;
 
-    if (plant.quantity < item.quantity) {
-      return res.status(BAD_REQUEST).json({ 
-        message: `Sorry, only ${plant.quantity} items left of ${plant.name}` 
-      });
-    }
-
-    subTotal += plant.price * item.quantity;
-    sellerId = plant.seller;
+    const currentPrice = Number(item.plant.price);
+    subTotal += currentPrice * item.quantity;
+    
+    if (!sellerId) sellerId = item.plant.seller;
 
     orderItems.push({
-      plant: plant._id,
+      plant: item.plant._id,
       quantity: item.quantity,
-      price: plant.price,
+      price: currentPrice
     });
   }
-
-  const totalPrice = subTotal + deliveryFee;
-  const orderNumber = Math.floor(100000 + Math.random() * 900000).toString();
 
   const order = await Order.create({
     buyer: req.user.id,
@@ -49,26 +109,13 @@ export const confirmOrder = catchError(async (req, res) => {
     paymentMethod,
     subTotal,
     deliveryFee,
-    totalPrice,
-    orderNumber
+    totalPrice: subTotal + deliveryFee,
+    orderNumber: "ORD-" + Math.floor(100000 + Math.random() * 900000)
   });
-
-  for (const item of items) {
-    await MarketItem.findByIdAndUpdate(item.plant, {
-      $inc: { quantity: -item.quantity }
-    });
-  }
 
   await Cart.findOneAndDelete({ buyer: req.user.id });
 
-  const populatedOrder = await Order.findById(order._id)
-    .populate("seller", "name") 
-    .populate("items.plant", "name");
-
-  res.status(CREATED).json({
-    message: "Order confirmed successfully and cart cleared!",
-    data: populatedOrder,
-  });
+  res.status(201).json({ success: true, message: "Order confirmed successfully from cart!", data: order });
 });
 
 export const getMyOrders = catchError(async (req, res) => {
