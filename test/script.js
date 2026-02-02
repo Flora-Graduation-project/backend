@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:3000"; 
+const BASE_URL = "https://backend-5xnh.vercel.app"; 
 let currentCartItems = []; 
 
 function showResponse(data) {
