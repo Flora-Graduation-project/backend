@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flora API Test Panel</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="main-container">
+      <div class="forms-side">
+        <h1>🌱 API Control Panel</h1>
+
+        <section class="card">
+          <h2 class="section-title">Auth Operations</h2>
+          <div class="form-group">
+            <h3>Sign Up</h3>
+            <input id="signupName" placeholder="Full Name" />
+            <input id="signupEmail" placeholder="Email Address" />
+            <input id="signupPassword" type="password" placeholder="Password" />
+            <input id="signupConfirmPassword" type="password" placeholder="Confirm Password" />
+            <button class="btn-primary" onclick="signup()">Create Account</button>
+          </div>
+          <hr />
+          <div class="form-group">
+            <h3>Log In</h3>
+            <input id="loginEmail" placeholder="Email Address" />
+            <input id="loginPassword" type="password" placeholder="Password" />
+            <button class="btn-primary" onclick="login()">Log In</button>
+          </div>
+          <hr />
+          <div class="form-group">
+            <h3>Account Verification</h3>
+            <input id="verifyCode" placeholder="Verification Code" />
+            <button class="btn-primary" onclick="verify()">Verify Account</button>
+            <button class="btn-link" onclick="resendCode()">Resend Code</button>
+          </div>
+          <hr />
+          <div class="form-group">
+            <h3>Forget Password</h3>
+            <input id="forgetEmail" placeholder="Email Address" />
+            <button class="btn-primary" onclick="forgetPassword()">Send Code</button>
+            <div class="sub-section" style="margin-top: 15px; background: #f1f1f1; padding: 15px; border-radius: 8px; border: 1px dashed #ccc;">
+              <h4>Step 1: Verify Code</h4>
+              <input id="resetCode" placeholder="Enter Code From Email" />
+              <button class="btn-primary" onclick="verifyResetCode()">Verify Code</button>
+              <h4 style="margin-top: 15px">Step 2: Reset Password</h4>
+              <input id="manualToken" class="input-id-highlight" placeholder="Paste Token Here (From Response)" />
+              <input id="newPassword" type="password" placeholder="New Password" />
+              <input id="confirmNewPassword" type="password" placeholder="Confirm New Password" />
+              <button class="btn-success" style="width: 100%" onclick="resetPassword()">Confirm Reset Password</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2 class="section-title">User Profile</h2>
+          <div class="form-group">
+            <button class="btn-primary mb-10" onclick="getProfile()">View My Profile</button>
+          </div>
+          <hr />
+          <div class="form-group bg-green-light" style="padding: 15px; border-radius: 8px;">
+            <h3>Update Profile Information</h3>
+            <input id="editName" placeholder="Enter New Name" />
+            <div style="margin-bottom: 10px;">
+                <label class="custom-label">Change Profile Image:</label>
+                <input id="editImage" type="file" accept="image/*" />
+            </div>
+            <button class="btn-success" onclick="editProfile()">Save Changes</button>
+          </div>
+          <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+            <button class="btn-delete" onclick="deleteAccount()">Delete My Account</button>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2 class="section-title">Market (Plants)</h2>
+          <div class="form-group bg-green-light" style="padding: 15px; border-radius: 8px;">
+            <h3>1. Add Plant for Sale</h3>
+            <input id="plantName" placeholder="Plant Name" />
+            <input id="plantSubtitle" placeholder="Subtitle" />
+            <input id="plantType" placeholder="Type (Indoor/Outdoor)" />
+            <input id="plantPrice" type="number" placeholder="Price" />
+            <input id="plantQuantity" type="number" placeholder="Quantity" />
+            <textarea id="plantDesc" placeholder="Description"></textarea>
+            <input type="text" id="plantImage" placeholder="Paste Image URL here">
+            <button class="btn-success" onclick="addPlant()">Post Plant</button>
+          </div>
+          <hr />
+          <div class="form-group">
+            <h3>2. Get All Plants</h3>
+            <button class="btn-primary" onclick="getAllPlants()">Refresh Market List</button>
+            <div id="plantsList" style="margin-top: 15px; max-height: 250px; overflow-y: auto;"></div>
+          </div>
+          <hr />
+          <div class="form-group bg-yellow-light" style="padding: 15px; border-radius: 8px;">
+            <h3>3. Manage Plant (ID Required)</h3>
+            <input id="targetPlantId" class="input-id-highlight" placeholder="Paste Plant ID from Response" />
+            <div class="flex-row">
+              <button class="btn-primary" style="flex: 1" onclick="getPlantDetails()">Details</button>
+              <button class="btn-success" style="flex: 1" onclick="updatePlant()">Update</button>
+              <button class="btn-delete" style="flex: 1" onclick="deleteProduct()">Delete</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2 class="section-title">Shopping Cart</h2>
+          <div class="form-group bg-green-light" style="padding: 15px; border-radius: 8px;">
+            <h3>1. Add to Cart</h3>
+            <input id="cartProductId" class="input-id-highlight" placeholder="Paste Product ID (from Market)" />
+            <input id="cartQuantity" type="number" placeholder="Quantity" value="1" />
+            <button class="btn-primary" onclick="addToCart()">Add to Cart</button>
+          </div>
+          <hr />
+          <div class="form-group">
+            <h3>2. My Cart Content</h3>
+            <button class="btn-primary" onclick="getUserCart()">Refresh My Cart</button>
+          </div>
+          <hr />
+          <div class="form-group bg-yellow-light" style="padding: 15px; border-radius: 8px;">
+            <h3>3. Manage Cart Item (ID Required)</h3>
+            <input id="cartItemId" class="input-id-highlight mb-10" placeholder="Paste Cart Item ID from Response" />
+            <input id="updateCartQty" class="mb-10" type="number" placeholder="New Qty" />
+            <div class="flex-row">
+                <button class="btn-success" style="flex: 1; padding: 10px 0;" onclick="updateCartItem()">Update Qty</button>
+                <button class="btn-delete" style="flex: 1; padding: 10px 0;" onclick="deleteFromCart()">Remove</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2 class="section-title"> Wishlist</h2>
+          <div class="form-group bg-green-light" style="padding: 15px; border-radius: 8px;">
+            <h3>1. Add to Wishlist</h3>
+            <input id="wishlistProductId" class="input-id-highlight" placeholder="Paste Product ID (from Market)" />
+            <button class="btn-primary" style="background: #235347; border:none;" onclick="addToWishlist()">Add to Wishlist</button>
+          </div>
+          <hr />
+          <div class="form-group">
+            <h3>2. My Wishlist Content</h3>
+            <button class="btn-primary" onclick="getWishlist()">Refresh My Wishlist</button>
+          </div>
+          <hr />
+          <div class="form-group bg-yellow-light" style="padding: 15px; border-radius: 8px;">
+            <h3>3. Manage Wishlist (ID Required)</h3>
+            <input id="wishlistItemId" class="input-id-highlight mb-10" placeholder="Paste Wishlist Item ID from Response" />
+            <div class="flex-row">
+                <button class="btn-success" style="flex: 1; padding: 10px 0;" onclick="moveToCart()">Move to Cart</button>
+                <button class="btn-delete" style="flex: 1; padding: 10px 0;" onclick="removeFromWishlist()">Remove</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" style="margin-bottom: 50px;">
+          <h2 class="section-title">Checkout & Orders</h2>
+          <div class="form-group bg-green-light" style="padding: 15px; border-radius: 8px;">
+            <h3>1. Confirm Order</h3>
+            <input id="orderName" placeholder="Full Name" />
+            <input id="orderPhone" placeholder="Phone Number" />
+            <input id="orderCountry" placeholder="Country" />
+            <input id="orderGov" placeholder="Governorate" />
+            <input id="orderAddress" placeholder="Full Address Details" />
+            <input id="orderZip" placeholder="Zip Code" />
+            
+            <label class="custom-label">Payment Method:</label>
+            <select id="orderPayment" class="custom-select-styled">
+                <option value="cash">Cash on Delivery</option>
+                <option value="visa">Visa / Credit Card</option>
+                <option value="wallet">Wallet</option>
+            </select>
+            
+            <button class="btn-success" onclick="confirmOrder()">Place Order Now</button>
+          </div>
+          <hr />
+          <div class="form-group">
+            <h3>2. Order History</h3>
+            <div class="flex-row">
+                <button class="btn-primary" onclick="getAllOrders()">View Orders</button>
+                <button class="btn-primary" onclick="getAllRequests()">View Requests</button>
+            </div>
+          </div>
+          <hr />
+          <div class="form-group bg-yellow-light" style="padding: 15px; border-radius: 8px;">
+            <h3>3. Get Details (ID Required)</h3>
+            <input id="orderDetailId" class="input-id-highlight" placeholder="Paste Order or Request ID" />
+            <div class="flex-row">
+                <button class="btn-primary" style="flex: 1;" onclick="getOrderDetails()">Order Details</button>
+                <button class="btn-primary" style="flex: 1;" onclick="getRequestDetails()">Request Details</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" style="margin-bottom: 50px;">
+          <h2 class="section-title">Encyclopedia</h2>
+          <div class="form-group bg-green-light" style="padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+              <h3> Plants Encyclopedia</h3>
+              <div class="flex-row">
+                  <button class="btn-success" onclick="getAllEncyclopediaPlants()">Get All Plants</button>
+              </div>
+              <div style="margin-top: 15px; display: flex; gap: 10px; align-items: center;">
+                  <input type="number" id="plantPage" placeholder="Page No." style="width: 100px; margin-bottom: 0;" value="1" />
+                  <button class="btn-primary" style="margin: 0;" onclick="getPlantsWithPagination()">Get Plants with Pagination</button>
+              </div>
+              <div style="margin-top: 15px;">
+                  <input id="targetPlantIdEnc" placeholder="Paste Plant ID for Details" />
+                  <button class="btn-primary" onclick="getPlantDetailsById()">Get Plant Details</button>
+              </div>
+          </div>
+          <hr />
+          <div class="form-group bg-yellow-light" style="padding: 15px; border-radius: 8px;">
+              <h3>Diseases Encyclopedia</h3>
+              <div class="flex-row">
+                  <button class="btn-success" onclick="getAllDiseases()">Get All Diseases</button>
+              </div>
+              <div style="margin-top: 15px; display: flex; gap: 10px; align-items: center;">
+                  <input type="number" id="diseasePage" placeholder="Page No." style="width: 100px; margin-bottom: 0;" value="1" />
+                  <button class="btn-primary" style="margin: 0;" onclick="getDiseasesWithPagination()">Get Diseases with Pagination</button>
+              </div>
+              <div style="margin-top: 15px;">
+                  <input id="targetDiseaseId" placeholder="Paste Disease ID for Details" />
+                  <button class="btn-primary" onclick="getDiseaseDetailsById()">Get Disease Details</button>
+              </div>
+          </div>
+        </section>
+      </div> 
+
+      <div class="response-side">
+        <div class="sticky-header">
+          <h3 style="margin: 0; color: #235347;">📡 Live Response</h3>
+          <button class="btn-clear" onclick="document.getElementById('responseBox').textContent = 'Waiting...'">Clear</button>
+        </div>
+        <pre id="responseBox">Waiting for request...</pre>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>

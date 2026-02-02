@@ -1,0 +1,153 @@
+.main-container {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.forms-side {
+    flex: 1;
+    padding: 20px 40px;
+    overflow-y: auto;
+    background: #f0f2f5;
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+}
+
+.response-side {
+    width: 40%;
+    background: #2d3436;
+    display: flex;
+    flex-direction: column;
+    border-left: 4px solid #235347;
+}
+
+.card {
+    background: white;
+    width: 100%;
+    max-width: 500px;
+    padding: 30px;
+    margin-bottom: 40px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    position: relative;
+}
+
+h1 { color: #235347; margin-bottom: 30px; text-align: center; width: 100%; }
+h2.section-title { font-size: 1.7rem; color:#D96319; text-align: center; margin-bottom: 20px; }
+h3 { font-size: 1.3rem; color: #235347; margin-bottom: 10px;}
+hr { border: 0; border-top: 1px solid #eee; margin: 25px 0; }
+
+.custom-label {
+    font-size: 16px !important;
+    color: #235347 !important;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 10px;
+    margin-top: 5px;
+}
+
+input, textarea {
+    width: 100%; 
+    padding: 10px 15px; 
+    margin-bottom: 15px; 
+    border: 1px solid #ddd; 
+    border-radius: 8px; 
+    font-size: 16px;
+    box-sizing: border-box; 
+    background-color: #fff;
+    display: block;
+}
+
+input[type="file"] {
+    background-color: #fff !important;
+    border: 1px solid #ddd !important;
+    padding: 10px 15px !important;
+}
+
+.input-id-highlight { 
+    border: 2px solid #fce171 !important; 
+    background-color: #fffdf5 !important;
+}
+
+#targetPlantIdEnc, #targetDiseaseId {
+    border: 2px solid #fce171 !important;
+    background-color: #fffdf5 !important;
+}
+
+textarea {
+    min-height: 100px; 
+    resize: vertical; 
+    line-height: 1.5;
+}
+
+::placeholder { color: #999; }
+
+button {
+    width: 100%;
+    padding: 12px;
+    margin: 5px 0;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+.btn-delete { background: rgb(192, 44, 44); color: white; }
+.btn-primary, .btn-success, .btn-danger { background: #235347; color: white; }
+.btn-link { background: none; font-size: 0.8rem; color: #0984e3; text-decoration: underline; width: auto; }
+
+.bg-green-light { background-color: #e8f5e9 !important; }
+.bg-yellow-light { background-color: #fffbe6 !important; }
+
+.flex-row { 
+    display: flex; 
+    flex-direction: row;
+    gap: 10px; 
+    margin-top: 5px; 
+    flex-wrap: nowrap; 
+    align-items: center;
+}
+
+.mb-10 { margin-bottom: 10px !important; }
+
+.custom-select-styled {
+    width: 100%;
+    padding: 10px 15px;
+    padding-right: 20px !important;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    box-sizing: border-box;
+    background-color: #fff;
+    display: block;
+    cursor: pointer;
+    color: #333;
+    appearance: auto;
+}
+
+.sticky-header {
+    background: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+}
+
+pre {
+    color: white;
+    padding: 20px;
+    font-size: 13px;
+    overflow: auto;
+    flex: 1;
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.btn-clear { background: #D96319; color: white; width: auto; padding: 5px 15px; font-size: 14px; margin: 0; }
