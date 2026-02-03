@@ -32,7 +32,10 @@ const userSchema = new mongoose.Schema(
     }
   },
   default: {}
-}
+},
+refreshToken: {
+      type: String,
+    },
 
     // isComfirmed: {
     //   type: Boolean,

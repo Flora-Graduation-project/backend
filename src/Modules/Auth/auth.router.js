@@ -8,6 +8,7 @@ import {
   resendCode,
   forgetPassword,
   resetPassword,
+  refreshToken
 } from "./auth.controller.js";
 import { validate } from "../../Middlewares/validate.js";
 import {
@@ -42,6 +43,9 @@ router.post(
 
 // log in
 router.post("/logIn", validate(logInSchema), logIn);
+
+// refresh token
+router.post("/refresh-token", refreshToken);
 
 // تبدأ عملية تسجيل الدخول عبر Facebook
 router.get(
