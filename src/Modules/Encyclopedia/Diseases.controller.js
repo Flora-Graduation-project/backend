@@ -8,7 +8,7 @@ import Disease from "../../../DB/Models/Diseases/Diseases.model.js";
 export const getAllDiseases = catchError(async (req, res, next) => {
   const {name} = req.query;
   if(name){
-    const diseases = await Disease.find({name:{$regex:name,$options:"i"}}).select("name images_url");
+    const diseases = await Disease.find({disease_id:{$regex:name,$options:"i"}}).select("name images_url");
     if(diseases.length===0){
       return res.status(NOT_FOUND).json({message:"No diseases found with this name"})
     }
