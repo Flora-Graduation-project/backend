@@ -11,7 +11,7 @@ import cartRouter from "./Modules/Cart/cart.router.js"
 import orderRouter from "./Modules/Order/order.router.js";
 import plantRouter from "./Modules/Encyclopedia/Plant.router.js";
 import diseaseRouter from "./Modules/Encyclopedia/Diseases.router.js";
-
+import model1Router from "./Modules/AI_Models/AI_Models.router.js";
 export const startApp = (app, express) => {
 
   app.use(cors(corsOptions));
@@ -37,6 +37,9 @@ export const startApp = (app, express) => {
   // Encyclopedia
   app.use("/plants", plantRouter);
   app.use("/diseases", diseaseRouter);
+
+  // connect with Ai models
+  app.use("/ai", model1Router);
 
   // errorhandeler route
   app.use(globalErrorHandler);
