@@ -8,7 +8,8 @@ import Plant from "../../../DB/Models/Plants/Plants.model.js";
 export const getAllPlants = catchError(async (req, res, next) => {
   const {name} = req.query;
   if(name){
-    const plants = await Plant.find({plant_name:{$regex:name,$options:"i"}}).select("plant_name sub_title image_url");
+    const safeName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const plants = await Plant.find({plant_id:{$regex:safeName,$options:"i"}}).select("plant_name sub_title image_url");
     if(plants.length===0){
       return res.status(NOT_FOUND).json({message:"No plants found with this name"})
     }
