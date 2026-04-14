@@ -10,6 +10,9 @@ const plantSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  scientific_name: {
+    type: String,
+  },
   sub_title: {
     type: String,
   },
@@ -32,12 +35,12 @@ const plantSchema = new mongoose.Schema({
     type: [String], 
   },
   fertilizing: {
-    type: [String], 
+    type: String, 
   },
   toxicity: {
     type: String,
   },
-  pets: {
+  pests: {
     type: [String], 
   },
   diseases: {
@@ -46,7 +49,7 @@ const plantSchema = new mongoose.Schema({
   care_tips: {
     type: String,
   },
-  image_url: {
+  image_urls: {
     type: [String], 
   }
 }, { timestamps: true });
