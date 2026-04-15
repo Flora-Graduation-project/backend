@@ -11,5 +11,5 @@ const router = express.Router();
 
 router.post("/Identification",isAuthenticated, Identification_Controller);
 router.post("/Diagnostic", isAuthenticated, Diagnostic_Controller);
-router.post("/Chat", validate(chatSchema), isAuthenticated, handleChat);
+router.post("/Chat", isAuthenticated,validate(chatSchema), handleChat);
 export default router;
