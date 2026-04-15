@@ -6,9 +6,10 @@ import {
   Diagnostic_Controller,
   handleChat,
 } from "./AI_Models.controller.js";
+import { isAuthenticated } from "../../Middlewares/isAuth.js";
 const router = express.Router();
 
-router.post("/Identification", Identification_Controller);
-router.post("/Diagnostic", Diagnostic_Controller);
-router.post("/Chat", validate(chatSchema), handleChat);
+router.post("/Identification",isAuthenticated, Identification_Controller);
+router.post("/Diagnostic", isAuthenticated, Diagnostic_Controller);
+router.post("/Chat", validate(chatSchema), isAuthenticated, handleChat);
 export default router;
