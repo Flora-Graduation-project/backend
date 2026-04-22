@@ -36,7 +36,7 @@ const diseaseSchema = new mongoose.Schema(
     
     severity: severitySchema, 
 
-    image_urls: [{ type: String }], 
+    image_url: String , 
   },
   { timestamps: true } 
 );
