@@ -27,7 +27,7 @@ export const confirmOrderSchema = Joi.object({
     }),
 
   paymentMethod: Joi.string()
-    .valid("visa", "cash", "wallet")
+    .valid("visa", "cash")
     .required()
     .messages({
       "any.required": "Payment method is required",

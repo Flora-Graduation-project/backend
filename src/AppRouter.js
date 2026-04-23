@@ -12,6 +12,7 @@ import orderRouter from "./Modules/Order/order.router.js";
 import plantRouter from "./Modules/Encyclopedia/Plant.router.js";
 import diseaseRouter from "./Modules/Encyclopedia/Diseases.router.js";
 import modelsRouter from "./Modules/AI_Models/AI_Models.router.js";
+import paymentRouter from "./Modules/payment/payment.router.js";
 export const startApp = (app, express) => {
 
   app.use(cors(corsOptions));
@@ -33,6 +34,9 @@ export const startApp = (app, express) => {
 
   // Orders
   app.use("/orders", orderRouter);
+
+  //payment
+  app.use('/payment', paymentRouter);
 
   // Encyclopedia
   app.use("/plants", plantRouter);
