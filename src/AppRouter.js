@@ -13,10 +13,18 @@ import plantRouter from "./Modules/Encyclopedia/Plant.router.js";
 import diseaseRouter from "./Modules/Encyclopedia/Diseases.router.js";
 import modelsRouter from "./Modules/AI_Models/AI_Models.router.js";
 import paymentRouter from "./Modules/payment/payment.router.js";
+import { handleStripeWebhook } from "./services/webhook.controller.js";
 export const startApp = (app, express) => {
 
   app.use(cors(corsOptions));
   app.use(helmet());
+
+  // Stripe Webhook Endpoint 
+  app.post(
+  '/api/webhook/stripe', 
+  express.raw({ type: 'application/json' }), 
+  handleStripeWebhook
+);
 
   // middleware to parse json
   app.use(express.json());
