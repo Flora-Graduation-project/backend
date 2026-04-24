@@ -55,7 +55,24 @@ const orderSchema = new mongoose.Schema(
       type: String,
       unique: true,
     },
+    paymentStatus: { // حاله الدفع
+      type: String,
+      enum: ["PENDING", "PAID", "FAILED", "REFUNDED"],
+      default: "PENDING",
+    },
+    orderStatus: { // علشان لو اليوزر دفع بس البائع ملقاش عنده النبته او حصلت مشكلة في الشحن فيرجعله الفلوس
+      type: String,
+      enum: ["PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"],
+      default: "PROCESSING",
+    },
+    stripePaymentIntentId: String, // لما ستريب تبعتلي ان الاوردر اتدفع اعرف دا انهي اوردر ,  مش يونيك لان ممكن الدفع يكون كاش
+    platformFee: { // نصيب فلورا من كل اوردر
+      type: Number,
+      default: 0,
+    },
   },
-  { timestamps: true }
+  { 
+    timestamps: true 
+  }
 );
 export default mongoose.model("Order", orderSchema);

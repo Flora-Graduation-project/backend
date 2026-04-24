@@ -1,17 +1,17 @@
 import express from "express";
-import { confirmOrder, getMyOrders, getMyRequests, getOrderDetails,getRequestDetails } from "../Order/order.controller.js";
+import { createOrder, getMyOrders, getMyRequests, getOrderDetails,getRequestDetails } from "../Order/order.controller.js";
 import { isAuthenticated } from "../../Middlewares/isAuth.js";
 import { validate } from "../../Middlewares/validate.js";
 import {confirmOrderSchema} from "../../Modules/Order/order.validation.js"
 
 const router = express.Router();
 
-// Confirm Order
+// Create Order
 router.post(
-  "/confirm",
+  "/createOrder",
   isAuthenticated,
   validate(confirmOrderSchema),
-  confirmOrder
+  createOrder
 );
 
 // Get My Orders
