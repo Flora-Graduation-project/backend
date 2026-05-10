@@ -17,9 +17,10 @@ export const addToWishList = catchError(async (req, res, next) => {
       err.statusCode = NOT_FOUND;
       return next(err);
     }
+    //console.log(itemId);
     let wishList = await wishListModel.findOne({user:userId});
     if(!wishList) {
-       wishList = wishListModel.create({user:userId})
+       wishList = await wishListModel.create({user:userId})
     }
     if(!wishList.items.includes(itemId)){
 wishList.items.push(itemId);

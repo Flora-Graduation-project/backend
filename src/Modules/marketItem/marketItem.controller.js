@@ -1,7 +1,7 @@
 import { catchError } from "../../Utils/catchError.js";
 import { NOT_FOUND, UNAUTHORIZED ,SUCCESS, CREATED} from "../../Utils/statusCodes.js";
 import MarketItem from '../../../DB/Models/marketItem/marketItem.model.js';
-
+import WishList from '../../../DB/Models/wishList/wishList.model.js';
 
 // add plant for sale
 export const addMarketItem = catchError( async (req, res, next) => {
@@ -22,6 +22,9 @@ export const getAllMarketItems = catchError(async (req, res, next) => {
   const page = req.query.page || 1;
   const limit = 14;
   const skip = (page - 1) * limit;
+const userId = req.user.id;
+const wishList = await WishList.findOne({ user: userId }).select("items");
+
 
   const items = await MarketItem.find({ 
       isDeleted: false, 
@@ -30,10 +33,16 @@ export const getAllMarketItems = catchError(async (req, res, next) => {
     .select("name image price quantity") 
     .skip(skip)
     .limit(limit);
-    
+    const finalItems = items.map(item => {
+      const isFavorite = wishList && wishList.items.some(wishListItem => wishListItem.toString() === item._id.toString());
+      return {
+        ...item.toObject(),
+        isFavorite
+      };
+    });
   res.status(SUCCESS).json({
     results: items.length,
-    data: items,
+    data: finalItems,
   });
 });
 
