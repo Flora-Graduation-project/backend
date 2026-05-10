@@ -52,7 +52,12 @@ const marketItemSchema = new mongoose.Schema(
       default: false,
     },
     deletedAt: Date,
+      isFavorite: {
+    type: Boolean,
+    default: false,
   },
+  },
+
   { timestamps: true }
 );
 

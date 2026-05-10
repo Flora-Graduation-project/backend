@@ -13,10 +13,10 @@ import { MarketItemSchema } from "./marketItem.validation.js";
 const router = express.Router();
 
 // get all plants
-router.get("/", getAllMarketItems);
+router.get("/", isAuthenticated, getAllMarketItems);
 
 // get plant by id
-router.get("/:id", getMarketItemById);
+router.get("/:id", isAuthenticated, getMarketItemById);
 
 // add plant for sale
 router.post(
