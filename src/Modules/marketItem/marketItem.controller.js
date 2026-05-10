@@ -33,6 +33,15 @@ const wishList = await WishList.findOne({ user: userId }).select("items");
     .select("name image price quantity") 
     .skip(skip)
     .limit(limit);
+    if(!wishList) {
+      return res.status(SUCCESS).json({
+        results: items.length,
+        data: items.map(item => ({
+          ...item.toObject(),
+          isFavorite: false
+        })),
+      });
+    }
     const finalItems = items.map(item => {
       const isFavorite = wishList && wishList.items.some(wishListItem => wishListItem.toString() === item._id.toString());
       return {
