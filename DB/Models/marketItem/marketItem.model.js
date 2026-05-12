@@ -52,6 +52,10 @@ const marketItemSchema = new mongoose.Schema(
       default: false,
     },
     deletedAt: Date,
+    floraFee: { // نصيب فلورا من كل منتج
+      type: Number,
+      default: 0.1, // 10% by default
+    },
   },
 
   { timestamps: true }

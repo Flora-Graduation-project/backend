@@ -1,15 +1,16 @@
 import Stripe from 'stripe';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+import Order from '../../DB/Models/Order/order.model.js';
 
 class PaymentService {
   
   // دالة رئيسية بتحدد هندفع إزاي
-  static async processPayment(order, paymentMethod) {
+  static async processPayment({ amount, paymentMethod, orderGroupId }) {
     if (paymentMethod === 'visa') {
-      return await this.#processStripe(order);
+      return await this.#processStripe({ amount: amount, orderGroupId: orderGroupId });
     } 
     else if (paymentMethod === 'cash') {
-      return await this.#processCash(order);
+      return await this.#processCash({ amount: amount, orderGroupId: orderGroupId });
     }
     else {
       throw new Error("method not supported");
@@ -17,16 +18,18 @@ class PaymentService {
   }
 
   // دالة خاصة بـ Stripe (Private Method)
-  static async #processStripe(order) {
+  static async #processStripe(  { amount, orderGroupId } ) {
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: order.totalPrice * 100, // بالقروش
+      amount: amount * 100, // بالقروش
       currency: 'egp',
-      metadata: { orderId: order._id.toString() },
+      metadata: { orderGroupId: orderGroupId }, // بنبعت الجروب عشان نعرف نحدث كل الأوردرز اللي في نفس الجروب لما ييجي الرد من الستريب
     });
 
     // بنحدث الأوردر بالـ ID بتاع سترايب
-    order.stripePaymentIntentId = paymentIntent.id;
-    await order.save();
+    await Order.updateMany(
+        { orderGroup: orderGroupId },
+        { $set: { stripePaymentIntentId: paymentIntent.id } }
+      );
 
     return {
       success: true,
@@ -36,7 +39,7 @@ class PaymentService {
   }
 
   // دالة خاصة بالكاش
-  static async #processCash(order) {
+  static async #processCash(  { amount, orderGroupId } ) {
     // في الكاش مش بنعمل حاجة معقدة، بس بنجهز الرد
     return {
       success: true,

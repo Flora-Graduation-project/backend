@@ -1,28 +1,36 @@
 import mongoose from "mongoose";
 
-let cached = global.mongoose;
+const MONGODB_URI = process.env.MONGODB_URI;
 
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
+// التحقق من وجود الرابط قبل البدء (Fail Early)
+if (!MONGODB_URI) {
+  throw new Error("Please define the MONGODB_URI environment variable");
+}
+
+let cached = global.mongoose || { conn: null, promise: null };
+
+if (!global.mongoose) {
+  global.mongoose = cached;
 }
 
 export const connectDB = async () => {
-  if (cached.conn) {
-    // إذا الاتصال موجود مسبقًا، استخدمه مباشرة
-    return cached.conn;
-  }
+  if (cached.conn) return cached.conn;
 
   if (!cached.promise) {
-    // لو مفيش اتصال جاري، نعمل اتصال جديد
-    cached.promise = mongoose
-      .connect(process.env.MONGODB_URI, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      })
-      .then((mongoose) => mongoose);
+    // خيارات الاتصال الحديثة مش محتاجة useNewUrlParser
+    cached.promise = mongoose.connect(MONGODB_URI).then((mongoose) => {
+      console.log("connected to db ....");
+      return mongoose;
+    });
   }
 
-  cached.conn = await cached.promise;
-  console.log("Connected to DB ...");
+  try {
+    cached.conn = await cached.promise;
+  } catch (e) {
+    cached.promise = null; // نمسح الـ promise عشان يحاول تاني المرة الجاية
+    console.error("MongoDB connection error:", e.message);
+    throw e;
+  }
+
   return cached.conn;
 };

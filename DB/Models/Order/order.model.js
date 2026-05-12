@@ -28,7 +28,10 @@ const orderSchema = new mongoose.Schema(
           required: true,
           min: 0,
         },
+        plantName: String, // بنخزن اسم النبته وقت الطلب عشان لو البائع غير السعر او حذف النبته نقدر نعرض للباير المعلومات اللي كان شايفها وقت الطلب
+        plantImage: String, // نفس الكلام بالنسبة للصورة
       },
+      {_id: false}
     ],
     address: {
       type: {
@@ -66,10 +69,7 @@ const orderSchema = new mongoose.Schema(
       default: "PROCESSING",
     },
     stripePaymentIntentId: String, // لما ستريب تبعتلي ان الاوردر اتدفع اعرف دا انهي اوردر ,  مش يونيك لان ممكن الدفع يكون كاش
-    platformFee: { // نصيب فلورا من كل اوردر
-      type: Number,
-      default: 0,
-    },
+    orderGroup: { type: String }// لو اليوزر دفع اكتر من اوردر في نفس الوقت عشان يوفصلهم عن بعض في الستريب  
   },
   { 
     timestamps: true 
