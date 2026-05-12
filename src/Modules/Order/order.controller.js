@@ -9,6 +9,7 @@ import {
 } from "../../Utils/statusCodes.js";
 import Cart from "../../../DB/Models/Cart/Cart.model.js";
 import PaymentService from "../../services/payment.service.js";
+import mongoose from "mongoose";
 
 export const createOrder = catchError(async (req, res) => {
   const cart = await Cart.findOne({ buyer: req.user.id }).populate(
@@ -23,10 +24,12 @@ export const createOrder = catchError(async (req, res) => {
   const shippingRates = { Cairo: 50, Giza: 50, Sharkia: 80, Alexandria: 100 };
   const deliveryFee = shippingRates[address.governorate] || 100;
 
+    await Order.deleteMany({ buyer: req.user.id, paymentStatus: "PENDING" });
+  
   const sellerGroup = {};
   for (const item of cart.items) {
     if (!item.plant) {
-      containue;
+      continue; // Skip if the plant is not found (might have been removed from the market)
     }
     const sellerId = item.plant.seller.toString();
     const currentPrice = Number(item.plant.price);
@@ -54,6 +57,7 @@ export const createOrder = catchError(async (req, res) => {
   const createdOrdersIds = [];
   let grandTotal = 0;
   const orderGroupId = "GRP-" + Date.now();
+  const orderPromises = [];
   for (const sellerId in sellerGroup) {
     const group = sellerGroup[sellerId];
     const ordertotal = group.subtotal + deliveryFee;
@@ -64,15 +68,17 @@ export const createOrder = catchError(async (req, res) => {
       items: group.items,
       address,
       paymentMethod,
-      subTotal: group.subTotal,
+      subTotal: group.subtotal,
       deliveryFee,
       totalPrice: ordertotal,
       orderNumber: "ORD-" + Math.floor(100000 + Math.random() * 900000),
       orderGroup: orderGroupId,
     });
     createdOrdersIds.push(newOrder._id);
-    await newOrder.save();
+   orderPromises.push(newOrder.save());
+
   }
+  await Promise.all(orderPromises);
   const paymentResult = await PaymentService.processPayment({
     amount: grandTotal,
     paymentMethod,
@@ -117,20 +123,38 @@ export const restoreCart = catchError(async (req, res) => {
     .json({ success: true, message: "Items restored to cart successfully!" });
 });
 export const getMyOrders = catchError(async (req, res) => {
-  const orders = await Order.find({ buyer: req.user.id })
-    .select("orderNumber totalPrice createdAt items -_id");
+  const userId = new mongoose.Types.ObjectId(req.user.id);
+  if (!userId) {
+    return res.status(NOT_FOUND).json({ message: "User not found!" });
+  }
   
+  const orders = await Order.aggregate([
+    { $match: { buyer: userId , paymentStatus: "PAID" } },
+    { $group: {
+        _id: "$orderGroup",
+        totalPrice: { $sum: "$totalPrice" },
+        createdAt: { $first: "$createdAt" },
+      },
+    },
+      { $sort: { createdAt: 1 } },
+      { $project: {
+       _id: 0,
+        orderGroup: "$_id",
+        totalPrice: 1,
+        createdAt: 1}}
+  ])
+   
   res.status(SUCCESS).json({
     results: orders.length,
-    data:orders
-})
+    data: orders,
+  });
 });
 
 export const getOrderDetails = catchError(async (req, res) => {
   const { id } = req.params;
   const userId = req.user.id;
 
-  const orders = await Order.find({orderGroup: id})
+  const orders = await Order.find({orderGroup: id,paymentStatus: "PAID"})
     .select(
       "orderGroup createdAt paymentMethod subTotal deliveryFee totalPrice address items",
     )
