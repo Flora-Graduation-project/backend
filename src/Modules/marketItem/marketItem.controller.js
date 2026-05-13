@@ -68,7 +68,7 @@ export const getAllMarketItems = catchError(async (req, res, next) => {
     isDeleted: false,
     quantity: { $gt: 0 },
   })
-    .select("name image price quantity")
+    .select("name image price quantity subtitle type seller description")
     .skip(skip)
     .limit(limit);
   if (!wishList) {
