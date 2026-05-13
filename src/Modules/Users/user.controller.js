@@ -13,7 +13,6 @@ export const updateProfile = catchError(async (req, res, next) => {
   return next(err);
   }
   let profilePic = req.user.profilePic || user.profilePic;
-
   if (req.file) {
     const uploadResult = await new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
@@ -44,11 +43,12 @@ export const updateProfile = catchError(async (req, res, next) => {
     },
     { new: true }
   );
+  
 
   return res.status(200).json({
     success: true,
     message: "Profile Updated Successfully!",
-    user: updatedUser,
+    user: {_id:updatedUser._id,name:updatedUser.name, email: updatedUser.email, profilePic: updatedUser.profilePic},
   });
 });
 
