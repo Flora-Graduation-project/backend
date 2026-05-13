@@ -9,7 +9,7 @@ import {
 import { isAuthenticated } from "../../Middlewares/isAuth.js";
 import { validate } from "../../Middlewares/validate.js";
 import { MarketItemSchema } from "./marketItem.validation.js";
-
+import { uploadImage } from "../../Utils/multerCloud.js"
 const router = express.Router();
 
 // get all plants
@@ -22,9 +22,16 @@ router.get("/:id", isAuthenticated, getMarketItemById);
 router.post(
   "/",
   isAuthenticated,
+  uploadImage,
   validate(MarketItemSchema),
   addMarketItem
 );
+// router.post(
+//   "/",
+//   isAuthenticated,
+//   validate(MarketItemSchema),
+//   addMarketItem
+// );
 
 // edit plant
 router.patch(

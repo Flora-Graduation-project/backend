@@ -3,10 +3,13 @@ import { NOT_FOUND, UNAUTHORIZED ,SUCCESS, CREATED} from "../../Utils/statusCode
 import MarketItem from '../../../DB/Models/marketItem/marketItem.model.js';
 import WishList from '../../../DB/Models/wishList/wishList.model.js';
 
+
 // add plant for sale
-export const addMarketItem = catchError( async (req, res, next) => {
+export const addMarketItem = catchError(async (req, res, next) => {
+
   const marketItem = await MarketItem.create({
     ...req.body,
+    image: req.file, 
     seller: req.user.id,
   });
 
@@ -16,7 +19,20 @@ export const addMarketItem = catchError( async (req, res, next) => {
   });
 });
 
+// export const addMarketItem = catchError( async (req, res, next) => {
+//   const marketItem = await MarketItem.create({
+//     ...req.body,
+//     seller: req.user.id,
+//   });
+
+//   res.status(CREATED).json({
+//     message: "Plant Added for sale successfully!",
+//     data: marketItem,
+//   });
+// });
+
 // get all market plants
+
 export const getAllMarketItems = catchError(async (req, res, next) => {
   // pagination
   const page = req.query.page || 1;
