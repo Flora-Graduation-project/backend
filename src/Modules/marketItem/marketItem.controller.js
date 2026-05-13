@@ -1,35 +1,58 @@
 import { catchError } from "../../Utils/catchError.js";
-import { NOT_FOUND, UNAUTHORIZED ,SUCCESS, CREATED} from "../../Utils/statusCodes.js";
-import MarketItem from '../../../DB/Models/marketItem/marketItem.model.js';
-import WishList from '../../../DB/Models/wishList/wishList.model.js';
-
+import {
+  NOT_FOUND,
+  UNAUTHORIZED,
+  SUCCESS,
+  CREATED,
+} from "../../Utils/statusCodes.js";
+import MarketItem from "../../../DB/Models/marketItem/marketItem.model.js";
+import WishList from "../../../DB/Models/wishList/wishList.model.js";
+import { v2 as cloudinary } from "cloudinary";
 
 // add plant for sale
 export const addMarketItem = catchError(async (req, res, next) => {
+  if (!req.file) {
+    const err = new Error("Image file is required");
+    err.statusCode = NOT_FOUND;
+    return next(err);
+  }
+
+  const uploadToCloudinary = () => {
+    return new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        { resource_type: "image", folder: "market_items" },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        },
+      );
+      stream.end(req.file.buffer);
+    });
+  };
+
+  const result = await uploadToCloudinary();
 
   const marketItem = await MarketItem.create({
     ...req.body,
-    image: req.file, 
+    image: result.secure_url,
     seller: req.user.id,
   });
 
   res.status(CREATED).json({
     message: "Plant Added for sale successfully!",
-    data: marketItem,
+    data: {
+      image: marketItem.image,
+      name: marketItem.name,
+      price: marketItem.price,
+      quantity: marketItem.quantity,
+      subtitle: marketItem.subtitle,
+      description: marketItem.description,
+      type: marketItem.type,
+      seller: marketItem.seller,
+    },
   });
 });
 
-// export const addMarketItem = catchError( async (req, res, next) => {
-//   const marketItem = await MarketItem.create({
-//     ...req.body,
-//     seller: req.user.id,
-//   });
-
-//   res.status(CREATED).json({
-//     message: "Plant Added for sale successfully!",
-//     data: marketItem,
-//   });
-// });
 
 // get all market plants
 
@@ -38,33 +61,36 @@ export const getAllMarketItems = catchError(async (req, res, next) => {
   const page = req.query.page || 1;
   const limit = 14;
   const skip = (page - 1) * limit;
-const userId = req.user.id;
-const wishList = await WishList.findOne({ user: userId }).select("items");
+  const userId = req.user.id;
+  const wishList = await WishList.findOne({ user: userId }).select("items");
 
-
-  const items = await MarketItem.find({ 
-      isDeleted: false, 
-      quantity: { $gt: 0 } 
-    })
-    .select("name image price quantity") 
+  const items = await MarketItem.find({
+    isDeleted: false,
+    quantity: { $gt: 0 },
+  })
+    .select("name image price quantity")
     .skip(skip)
     .limit(limit);
-    if(!wishList) {
-      return res.status(SUCCESS).json({
-        results: items.length,
-        data: items.map(item => ({
-          ...item.toObject(),
-          isFavorite: false
-        })),
-      });
-    }
-    const finalItems = items.map(item => {
-      const isFavorite = wishList && wishList.items.some(wishListItem => wishListItem.toString() === item._id.toString());
-      return {
+  if (!wishList) {
+    return res.status(SUCCESS).json({
+      results: items.length,
+      data: items.map((item) => ({
         ...item.toObject(),
-        isFavorite
-      };
+        isFavorite: false,
+      })),
     });
+  }
+  const finalItems = items.map((item) => {
+    const isFavorite =
+      wishList &&
+      wishList.items.some(
+        (wishListItem) => wishListItem.toString() === item._id.toString(),
+      );
+    return {
+      ...item.toObject(),
+      isFavorite,
+    };
+  });
   res.status(SUCCESS).json({
     results: items.length,
     data: finalItems,
@@ -138,22 +164,6 @@ export const deleteMarketItem = catchError(async (req, res, next) => {
   });
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // export const deleteMarketItem = catchError(async (req, res, next) => {
 //   const item = await MarketItem.findById(req.params.id);
 
@@ -177,6 +187,3 @@ export const deleteMarketItem = catchError(async (req, res, next) => {
 //     message: "Plant deleted successfully",
 //   });
 // });
-
-
-

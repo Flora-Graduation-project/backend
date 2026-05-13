@@ -26,12 +26,6 @@ router.post(
   validate(MarketItemSchema),
   addMarketItem
 );
-// router.post(
-//   "/",
-//   isAuthenticated,
-//   validate(MarketItemSchema),
-//   addMarketItem
-// );
 
 // edit plant
 router.patch(
