@@ -1,6 +1,8 @@
 import Stripe from 'stripe';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 import Order from '../../DB/Models/Order/order.model.js';
+import MarketItem from '../../DB/Models/marketItem/marketItem.model.js';
+import Cart from '../../DB/Models/Cart/Cart.model.js';
 
 class PaymentService {
   
@@ -41,6 +43,37 @@ class PaymentService {
   // دالة خاصة بالكاش
   static async #processCash(  { amount, orderGroupId } ) {
     // في الكاش مش بنعمل حاجة معقدة، بس بنجهز الرد
+    const ordersToUpdate = await Order.find({ orderGroup: orderGroupId });
+    if (ordersToUpdate.length === 0) {
+      throw new Error("No orders found for the given order group ID");
+    }
+    await Order.updateMany(
+      { orderGroup: orderGroupId },
+      { $set: { paymentStatus: "PAID", stripePaymentIntentId: null } }
+    );
+     const stockUpdated = [];
+              let buyerId = null;
+    
+             ordersToUpdate.forEach(order => {
+                buyerId = order.buyer; // كل الأوامر في نفس الجروب ليها نفس البايير
+                order.items.forEach(item => {
+                    stockUpdated.push(
+                        MarketItem.findByIdAndUpdate(
+                            item.plant, 
+                            { $inc: { quantity: -item.quantity } }, 
+                            { new: true }
+                        )
+                    );
+                });
+              });
+    
+              await Promise.all(stockUpdated);
+              if(buyerId) {
+                await Cart.findOneAndUpdate(
+                  { buyer: buyerId },
+                  { $set: { items: [] ,totalPrice: 0} },
+                );
+              }
     return {
       success: true,
       clientSecret: null,
