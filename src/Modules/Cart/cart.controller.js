@@ -16,6 +16,11 @@ export const addToCart = catchError(async (req, res, next) => {
     err.statusCode = NOT_FOUND;
     return next(err);
   }
+  if (item.seller.toString() === userId) {
+    const err = new Error("You cannot add your own item to the cart");
+    err.statusCode = BAD_REQUEST;
+    return next(err);
+  }
   if (item.quantity < quantity) {
     const err = new Error(`Only ${item.quantity} items left in stock`);
     err.statusCode = BAD_REQUEST;
