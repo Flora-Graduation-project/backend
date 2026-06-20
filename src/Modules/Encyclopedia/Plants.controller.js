@@ -9,11 +9,10 @@ export const getAllPlants = catchError(async (req, res, next) => {
   const {name} = req.query;
   if(name){
     //const safeName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');  
-    const plants = await Plant.find({$or: [
-      { plant_name: { $regex: name, $options: "i" } },
-      { scientific_name: { $regex: name, $options: "i" } }
-    ]}).select("plant_name sub_title image_urls").lean();
-    if(plants.length===0){
+    const plants = await Plant.find( 
+      { plant_name: { $regex: name.trim(), $options: "i" } }
+    ).select("plant_name sub_title image_urls").lean();
+    if(!plants || plants.length === 0){
       return res.status(NOT_FOUND).json({message:"No plants found with this name"})
     }
     return res.status(SUCCESS).json({ message: "Success", plants:plants.map(plant=>({
