@@ -75,7 +75,8 @@ export const Identification_Controller = catchError(async (req, res) => {
     });
   }
   const { label, probability } = response.data.prediction;
-  return res.status(SUCCESS).json({ success: true, label, probability });
+  const labelName = label.split("(")[0];
+  return res.status(SUCCESS).json({ success: true, label: labelName, probability });
 });
 
 export const Diagnostic_Controller = catchError(async (req, res) => {
