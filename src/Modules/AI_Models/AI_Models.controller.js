@@ -9,6 +9,8 @@ import FormData from "form-data";
 import multer from "multer";
 import { uploadImage } from "../../Utils/multerCloud.js";
 import { askFloraBot } from "../../services/callChatbot.js";
+import Plant from "../../../DB/Models/Plants/Plants.model.js";
+import Disease from "../../../DB/Models/Diseases/Diseases.model.js";
 
 export const Identification_Controller = catchError(async (req, res) => {
   const uploadError = await new Promise((resolve) => {
@@ -75,8 +77,10 @@ export const Identification_Controller = catchError(async (req, res) => {
     });
   }
   const { label, probability } = response.data.prediction;
-  const labelName = label.split("(")[0];
-  return res.status(SUCCESS).json({ success: true, label: labelName, probability });
+  const labelName = label.split("(")[0].trim();
+
+const plant = await Plant.findOne({ plant_name: { $regex: `^${labelName}$`, $options: "i" } }).select("_id").lean();
+  return res.status(SUCCESS).json({ success: true, label: labelName,_id: plant._id, probability });
 });
 
 export const Diagnostic_Controller = catchError(async (req, res) => {
@@ -142,7 +146,8 @@ export const Diagnostic_Controller = catchError(async (req, res) => {
     });
   }
   const { label, probability } = response.data.prediction;
-  return res.status(SUCCESS).json({ success: true, label, probability });
+  const disease = await Disease.findOne({ disease_id: { $regex: `^${label.trim()}$`, $options: "i" } }).select("_id").lean();
+  return res.status(SUCCESS).json({ success: true, label, _id: disease._id, probability });
 });
 
 export const handleChat = catchError(async (req, res) => {
