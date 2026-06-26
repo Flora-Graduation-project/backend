@@ -3,28 +3,28 @@ import helmet from "helmet";
 import { corsOptions } from "./Utils/corsOptions.js";
 import { globalErrorHandler } from "./Middlewares/globalErrorHandler.js";
 import { notFound } from "./Middlewares/notFound.js";
-import authRouter from "./Modules/Auth/auth.router.js"
-import userRouter from "./Modules/Users/users.router.js"
+import authRouter from "./Modules/Auth/auth.router.js";
+import userRouter from "./Modules/Users/users.router.js";
 import marketItemRouter from "./Modules/marketItem/marketItem.router.js";
-import wishlistRouter from "./Modules/wishList/wishList.route.js"
-import cartRouter from "./Modules/Cart/cart.router.js"
+import wishlistRouter from "./Modules/wishList/wishList.route.js";
+import cartRouter from "./Modules/Cart/cart.router.js";
 import orderRouter from "./Modules/Order/order.router.js";
 import plantRouter from "./Modules/Encyclopedia/Plant.router.js";
 import diseaseRouter from "./Modules/Encyclopedia/Diseases.router.js";
 import modelsRouter from "./Modules/AI_Models/AI_Models.router.js";
 import paymentRouter from "./Modules/payment/payment.router.js";
+import notificationRouter from "./Modules/notification/notification.router.js";
 import { handleStripeWebhook } from "./services/webhook.controller.js";
 export const startApp = (app, express) => {
-
   app.use(cors(corsOptions));
   app.use(helmet());
 
-  // Stripe Webhook Endpoint 
+  // Stripe Webhook Endpoint
   app.post(
-  '/api/webhook/stripe', 
-  express.raw({ type: 'application/json' }), 
-  handleStripeWebhook
-);
+    "/api/webhook/stripe",
+    express.raw({ type: "application/json" }),
+    handleStripeWebhook,
+  );
 
   // middleware to parse json
   app.use(express.json());
@@ -38,17 +38,20 @@ export const startApp = (app, express) => {
   app.use("/market", marketItemRouter);
 
   // wishList
-  app.use("/wishlist",wishlistRouter)
+  app.use("/wishlist", wishlistRouter);
 
   // Orders
   app.use("/orders", orderRouter);
 
   //payment
-  app.use('/payment', paymentRouter);
+  app.use("/payment", paymentRouter);
 
   // Encyclopedia
   app.use("/plants", plantRouter);
   app.use("/diseases", diseaseRouter);
+
+  // Notifications
+  app.use("/notifications", notificationRouter);
 
   // connect with Ai models
   app.use("/ai", modelsRouter);

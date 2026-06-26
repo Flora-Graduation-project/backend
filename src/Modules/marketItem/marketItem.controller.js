@@ -7,6 +7,8 @@ import {
 } from "../../Utils/statusCodes.js";
 import MarketItem from "../../../DB/Models/marketItem/marketItem.model.js";
 import WishList from "../../../DB/Models/wishList/wishList.model.js";
+import { Notification } from "../../../DB/Models/notification/notification.model.js";
+import { User } from "../../../DB/Models/User/user.model.js";
 import { v2 as cloudinary } from "cloudinary";
 
 // add plant for sale
@@ -37,7 +39,15 @@ export const addMarketItem = catchError(async (req, res, next) => {
     image: result.secure_url,
     seller: req.user.id,
   });
-
+  const users = await User.find({ _id: { $ne: req.user.id } }).select("_id");
+  const notifications = users.map((user) => ({
+    recipient: user._id,
+    title: "New Plant for Sale",
+    message: `A new plant '${marketItem.name}' has been added for sale. Check it out!`,
+    isPlant: true,
+    plantId: marketItem._id,
+  }));
+  await Notification.insertMany(notifications);
   res.status(CREATED).json({
     message: "Plant Added for sale successfully!",
     data: {
@@ -52,7 +62,6 @@ export const addMarketItem = catchError(async (req, res, next) => {
     },
   });
 });
-
 
 // get all market plants
 
@@ -163,27 +172,3 @@ export const deleteMarketItem = catchError(async (req, res, next) => {
     message: "Plant deleted successfully!",
   });
 });
-
-// export const deleteMarketItem = catchError(async (req, res, next) => {
-//   const item = await MarketItem.findById(req.params.id);
-
-//   if (!item || item.isDeleted) {
-//     const err = new Error("Plant not found or already deleted");
-//     err.statusCode = NOT_FOUND;
-//     return next(err);
-//   }
-
-//   if (item.seller.toString() !== req.user._id.toString()) {
-//     const err = new Error("You are not allowed to delete this plant");
-//     err.statusCode = UNAUTHORIZED;
-//     return next(err);
-//   }
-
-//   item.isDeleted = true;
-//   await item.save();
-
-//   return res.status(SUCCESS).json({
-//     success: true,
-//     message: "Plant deleted successfully",
-//   });
-// });
