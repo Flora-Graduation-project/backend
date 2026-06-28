@@ -1,5 +1,5 @@
 import { catchError } from "../../Utils/catchError.js";
-import { CREATED, NOT_FOUND, SUCCESS } from "../../Utils/statusCodes.js";
+import { CREATED, NOT_FOUND, SUCCESS } from "../../Utils/statusCode.js";
 import { Notification } from "../../../DB/Models/notification/notification.model.js";
 import { User } from "../../../DB/Models/User/user.model.js";
 
