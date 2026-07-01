@@ -145,8 +145,18 @@ export const Diagnostic_Controller = catchError(async (req, res) => {
       message: "The uploaded image is out of distribution for the model.",
     });
   }
+  console.log(response.data.prediction);
   const { label, probability } = response.data.prediction;
+   if(label==="Rose_Healthy") {
+    return res.status(SUCCESS).json({ success: true, label, probability });
+  }
   const disease = await Disease.findOne({ disease_id: { $regex: `^${label.trim()}$`, $options: "i" } }).select("_id").lean();
+  if (!disease) {
+    return res.status(SUCCESS).json({
+      success: false,
+      message: "The predicted disease is not found in the database.",
+    });
+  }
   return res.status(SUCCESS).json({ success: true, label, _id: disease._id, probability });
 });
 
