@@ -20,7 +20,7 @@ export const getAllDiseases = catchError(async (req, res, next) => {
      const page = req.query.page || 1;
   const limit = 14;
   const skip = (page - 1) * limit;
-    const diseases = await Disease.find().skip(skip).limit(limit).select("name description image_url");
+    const diseases = await Disease.find().skip(skip).limit(limit).select("name symptoms image_url");
     return res.status(SUCCESS).json({ message: "Success", page,diseases });
 });
 
